@@ -110,6 +110,11 @@ module ActiveRecordCleanDbStructure
         dump.gsub!(/^(INSERT INTO schema_migrations .*)\n\n/, "\\1\n")
       end
 
+      # HACK: For some reason pgcrypto extension is not being loaded as expected,
+      # so we replace it by `public.uuid_generate_v4()` which does the same thing
+      dump.gsub!('public.gen_random_uuid()', 'public.uuid_generate_v4()');
+      dump.gsub!('gen_random_uuid()', 'public.uuid_generate_v4()');
+
       if options[:indexes_after_tables] == true
         # Extract indexes, remove comments and place them just after the respective tables
         indexes =
